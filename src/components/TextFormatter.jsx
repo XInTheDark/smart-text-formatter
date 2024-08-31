@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const TextFormatter = () => {
   const [inputText, setInputText] = useState('');
@@ -11,7 +13,11 @@ const TextFormatter = () => {
     trimWhitespace: false,
     capitalizeFirstLetter: false,
     removeExtraSpaces: false,
+    fixIndentation: false,
+    removeNonEnglish: false,
   });
+  const [limitType, setLimitType] = useState('characters');
+  const [limitValue, setLimitValue] = useState('');
 
   const handleInputChange = (e) => {
     setInputText(e.target.value);
@@ -38,6 +44,25 @@ const TextFormatter = () => {
 
     if (options.removeExtraSpaces) {
       formattedText = formattedText.replace(/\s+/g, ' ');
+    }
+
+    if (options.fixIndentation) {
+      formattedText = formattedText.split('\n').map(line => line.trim()).join('\n');
+    }
+
+    if (options.removeNonEnglish) {
+      formattedText = formattedText.replace(/[^\x00-\x7F]/g, "");
+    }
+
+    if (limitValue) {
+      const limit = parseInt(limitValue, 10);
+      if (limitType === 'characters') {
+        formattedText = formattedText.slice(0, limit);
+      } else if (limitType === 'words') {
+        formattedText = formattedText.split(/\s+/).slice(0, limit).join(' ');
+      } else if (limitType === 'sentences') {
+        formattedText = formattedText.match(/[^\.!\?]+[\.!\?]+/g)?.slice(0, limit).join(' ') || '';
+      }
     }
 
     setOutputText(formattedText);
@@ -86,6 +111,41 @@ const TextFormatter = () => {
             />
             <label htmlFor="removeExtraSpaces">Remove Extra Spaces</label>
           </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="fixIndentation"
+              checked={options.fixIndentation}
+              onCheckedChange={() => handleOptionChange('fixIndentation')}
+            />
+            <label htmlFor="fixIndentation">Fix Indentation</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="removeNonEnglish"
+              checked={options.removeNonEnglish}
+              onCheckedChange={() => handleOptionChange('removeNonEnglish')}
+            />
+            <label htmlFor="removeNonEnglish">Remove Non-English Characters</label>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Input
+            type="number"
+            placeholder="Limit"
+            value={limitValue}
+            onChange={(e) => setLimitValue(e.target.value)}
+            className="w-24"
+          />
+          <Select value={limitType} onValueChange={setLimitType}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select limit type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="characters">Characters</SelectItem>
+              <SelectItem value="words">Words</SelectItem>
+              <SelectItem value="sentences">Sentences</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={formatText}>Format Text</Button>
         <Textarea
