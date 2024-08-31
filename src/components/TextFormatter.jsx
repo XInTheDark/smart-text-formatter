@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CopyIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Formatter, option } from 'text-format-lite';
+import { wrapLines } from '../utils/textUtils';
 
 const formatter = new Formatter();
 
@@ -22,6 +23,7 @@ const TextFormatter = () => {
     [option.RemoveNonEnglish]: false,
   });
   const [limitText, setLimitText] = useState(false);
+  const [wrapLines, setWrapLines] = useState(false);
   const [limitType, setLimitType] = useState('characters');
   const [limitValue, setLimitValue] = useState('');
   const { toast } = useToast();
@@ -64,6 +66,10 @@ const TextFormatter = () => {
       } else if (limitType === 'sentences') {
         formattedText = formattedText.match(/[^\.!\?]+[\.!\?]+/g)?.slice(0, limit).join(' ') || '';
       }
+    }
+
+    if (wrapLines && limitValue) {
+      formattedText = wrapLines(formattedText, parseInt(limitValue, 10), limitType);
     }
 
     setOutputText(formattedText);
@@ -136,8 +142,16 @@ const TextFormatter = () => {
             />
             <label htmlFor="limitText">Limit Text</label>
           </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="wrapLines"
+              checked={wrapLines}
+              onCheckedChange={(checked) => setWrapLines(checked)}
+            />
+            <label htmlFor="wrapLines">Wrap Lines</label>
+          </div>
         </div>
-        {limitText && (
+        {(limitText || wrapLines) && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
@@ -153,7 +167,7 @@ const TextFormatter = () => {
               <SelectContent>
                 <SelectItem value="characters">Characters</SelectItem>
                 <SelectItem value="words">Words</SelectItem>
-                <SelectItem value="sentences">Sentences</SelectItem>
+                {limitText && <SelectItem value="sentences">Sentences</SelectItem>}
               </SelectContent>
             </Select>
           </div>
