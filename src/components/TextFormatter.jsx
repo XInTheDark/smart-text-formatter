@@ -1,0 +1,102 @@
+import React, { useState } from 'react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+
+const TextFormatter = () => {
+  const [inputText, setInputText] = useState('');
+  const [outputText, setOutputText] = useState('');
+  const [options, setOptions] = useState({
+    smartRemoveNewlines: false,
+    trimWhitespace: false,
+    capitalizeFirstLetter: false,
+    removeExtraSpaces: false,
+  });
+
+  const handleInputChange = (e) => {
+    setInputText(e.target.value);
+  };
+
+  const handleOptionChange = (option) => {
+    setOptions((prev) => ({ ...prev, [option]: !prev[option] }));
+  };
+
+  const formatText = () => {
+    let formattedText = inputText;
+
+    if (options.smartRemoveNewlines) {
+      formattedText = formattedText.replace(/(?<!\n)\n(?!\n)/g, ' ').replace(/\n{2,}/g, '\n\n');
+    }
+
+    if (options.trimWhitespace) {
+      formattedText = formattedText.trim();
+    }
+
+    if (options.capitalizeFirstLetter) {
+      formattedText = formattedText.replace(/(?:^|\.\s+)([a-z])/g, (match) => match.toUpperCase());
+    }
+
+    if (options.removeExtraSpaces) {
+      formattedText = formattedText.replace(/\s+/g, ' ');
+    }
+
+    setOutputText(formattedText);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <h1 className="text-2xl font-bold mb-4">Intelligent Text Formatter</h1>
+      <div className="space-y-4">
+        <Textarea
+          placeholder="Paste your text here..."
+          value={inputText}
+          onChange={handleInputChange}
+          className="min-h-[200px]"
+        />
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="smartRemoveNewlines"
+              checked={options.smartRemoveNewlines}
+              onCheckedChange={() => handleOptionChange('smartRemoveNewlines')}
+            />
+            <label htmlFor="smartRemoveNewlines">Smart Remove Newlines</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="trimWhitespace"
+              checked={options.trimWhitespace}
+              onCheckedChange={() => handleOptionChange('trimWhitespace')}
+            />
+            <label htmlFor="trimWhitespace">Trim Whitespace</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="capitalizeFirstLetter"
+              checked={options.capitalizeFirstLetter}
+              onCheckedChange={() => handleOptionChange('capitalizeFirstLetter')}
+            />
+            <label htmlFor="capitalizeFirstLetter">Capitalize First Letter</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="removeExtraSpaces"
+              checked={options.removeExtraSpaces}
+              onCheckedChange={() => handleOptionChange('removeExtraSpaces')}
+            />
+            <label htmlFor="removeExtraSpaces">Remove Extra Spaces</label>
+          </div>
+        </div>
+        <Button onClick={formatText}>Format Text</Button>
+        <Textarea
+          value={outputText}
+          readOnly
+          placeholder="Formatted text will appear here..."
+          className="min-h-[200px]"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default TextFormatter;
