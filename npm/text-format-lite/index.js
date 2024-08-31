@@ -40,9 +40,4 @@ class Formatter {
   }
 }
 
-const formatter = new Formatter();
-
-// Main formatting function
-export function format(text, options) {
-  return formatter.format(text, options);
-}
+export const formatter = new Formatter();
