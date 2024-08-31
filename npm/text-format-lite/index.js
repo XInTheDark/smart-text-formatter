@@ -16,7 +16,7 @@ export const option = {
   ALL: 'ALL'
 };
 
-class Formatter {
+export class Formatter {
   constructor() {
     this.formatters = [
       { option: option.SmartRemoveNewlines, func: smartRemoveNewlines },
@@ -39,5 +39,3 @@ class Formatter {
     }, text);
   }
 }
-
-export const formatter = new Formatter();
