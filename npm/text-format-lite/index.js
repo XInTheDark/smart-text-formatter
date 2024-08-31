@@ -16,23 +16,33 @@ export const option = {
   ALL: 'ALL'
 };
 
+class Formatter {
+  constructor() {
+    this.formatters = [
+      { option: option.SmartRemoveNewlines, func: smartRemoveNewlines },
+      { option: option.TrimWhitespace, func: trimWhitespace },
+      { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
+      { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
+      { option: option.FixIndentation, func: fixIndentation },
+      { option: option.RemoveNonEnglish, func: removeNonEnglish }
+    ];
+  }
+
+  format(text, options) {
+    const applyAll = options.includes(option.ALL);
+
+    return this.formatters.reduce((formattedText, formatter) => {
+      if (applyAll || options.includes(formatter.option)) {
+        return formatter.func(formattedText);
+      }
+      return formattedText;
+    }, text);
+  }
+}
+
+const formatter = new Formatter();
+
 // Main formatting function
 export function format(text, options) {
-  const applyAll = options.includes(option.ALL);
-
-  const formatters = [
-    { option: option.SmartRemoveNewlines, func: smartRemoveNewlines },
-    { option: option.TrimWhitespace, func: trimWhitespace },
-    { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
-    { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
-    { option: option.FixIndentation, func: fixIndentation },
-    { option: option.RemoveNonEnglish, func: removeNonEnglish }
-  ];
-
-  return formatters.reduce((formattedText, formatter) => {
-    if (applyAll || options.includes(formatter.option)) {
-      return formatter.func(formattedText);
-    }
-    return formattedText;
-  }, text);
+  return formatter.format(text, options);
 }
