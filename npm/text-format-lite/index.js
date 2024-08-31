@@ -1,3 +1,10 @@
+import { smartRemoveNewlines } from './formatter/smartRemoveNewlines.js';
+import { trimWhitespace } from './formatter/trimWhitespace.js';
+import { capitalizeFirstLetter } from './formatter/capitalizeFirstLetter.js';
+import { removeExtraSpaces } from './formatter/removeExtraSpaces.js';
+import { fixIndentation } from './formatter/fixIndentation.js';
+import { removeNonEnglish } from './formatter/removeNonEnglish.js';
+
 // Text formatting options
 export const option = {
   SmartRemoveNewlines: 'SmartRemoveNewlines',
@@ -11,36 +18,21 @@ export const option = {
 
 // Main formatting function
 export function format(text, options) {
-  let formattedText = text;
-
   const applyAll = options.includes(option.ALL);
 
-  if (applyAll || options.includes(option.SmartRemoveNewlines)) {
-    formattedText = formattedText.replace(/(?<!\n)\n(?!\n)/g, ' ').replace(/\n{2,}/g, '\n\n');
-  }
+  const formatters = [
+    { option: option.SmartRemoveNewlines, func: smartRemoveNewlines },
+    { option: option.TrimWhitespace, func: trimWhitespace },
+    { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
+    { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
+    { option: option.FixIndentation, func: fixIndentation },
+    { option: option.RemoveNonEnglish, func: removeNonEnglish }
+  ];
 
-  if (applyAll || options.includes(option.TrimWhitespace)) {
-    formattedText = formattedText.trim();
-  }
-
-  if (applyAll || options.includes(option.CapitalizeFirstLetter)) {
-    formattedText = formattedText.replace(/(?:^|\.\s+)([a-z])/g, (match) => match.toUpperCase());
-  }
-
-  if (applyAll || options.includes(option.RemoveExtraSpaces)) {
-    formattedText = formattedText.replace(/\s+/g, ' ');
-  }
-
-  if (applyAll || options.includes(option.FixIndentation)) {
-    formattedText = formattedText.split('\n').map(line => {
-      const indentLevel = line.search(/\S/);
-      return ' '.repeat(indentLevel) + line.trim();
-    }).join('\n');
-  }
-
-  if (applyAll || options.includes(option.RemoveNonEnglish)) {
-    formattedText = formattedText.replace(/[^\x00-\x7F]/g, "");
-  }
-
-  return formattedText;
+  return formatters.reduce((formattedText, formatter) => {
+    if (applyAll || options.includes(formatter.option)) {
+      return formatter.func(formattedText);
+    }
+    return formattedText;
+  }, text);
 }
