@@ -6,19 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CopyIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Formatter, option } from 'text-format-lite';
+
+const formatter = new Formatter();
 
 const TextFormatter = () => {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [options, setOptions] = useState({
-    smartRemoveNewlines: false,
-    trimWhitespace: false,
-    capitalizeFirstLetter: false,
-    removeExtraSpaces: false,
-    fixIndentation: false,
-    removeNonEnglish: false,
-    limitText: false,
+    [option.SmartRemoveNewlines]: false,
+    [option.TrimWhitespace]: false,
+    [option.CapitalizeFirstLetter]: false,
+    [option.RemoveExtraSpaces]: false,
+    [option.FixIndentation]: false,
+    [option.RemoveNonEnglish]: false,
   });
+  const [limitText, setLimitText] = useState(false);
   const [limitType, setLimitType] = useState('characters');
   const [limitValue, setLimitValue] = useState('');
   const { toast } = useToast();
@@ -41,41 +44,18 @@ const TextFormatter = () => {
     setInputText(e.target.value);
   };
 
-  const handleOptionChange = (option) => {
-    setOptions((prev) => ({ ...prev, [option]: !prev[option] }));
+  const handleOptionChange = (opt) => {
+    setOptions((prev) => ({ ...prev, [opt]: !prev[opt] }));
   };
 
   const formatText = () => {
-    let formattedText = inputText;
+    const selectedOptions = Object.entries(options)
+      .filter(([_, value]) => value)
+      .map(([key, _]) => key);
 
-    if (options.smartRemoveNewlines) {
-      formattedText = formattedText.replace(/(?<!\n)\n(?!\n)/g, ' ').replace(/\n{2,}/g, '\n\n');
-    }
+    let formattedText = formatter.format(inputText, selectedOptions);
 
-    if (options.trimWhitespace) {
-      formattedText = formattedText.trim();
-    }
-
-    if (options.capitalizeFirstLetter) {
-      formattedText = formattedText.replace(/(?:^|\.\s+)([a-z])/g, (match) => match.toUpperCase());
-    }
-
-    if (options.removeExtraSpaces) {
-      formattedText = formattedText.replace(/\s+/g, ' ');
-    }
-
-    if (options.fixIndentation) {
-      formattedText = formattedText.split('\n').map(line => {
-        const indentLevel = line.search(/\S/);
-        return ' '.repeat(indentLevel) + line.trim();
-      }).join('\n');
-    }
-
-    if (options.removeNonEnglish) {
-      formattedText = formattedText.replace(/[^\x00-\x7F]/g, "");
-    }
-
-    if (options.limitText && limitValue) {
+    if (limitText && limitValue) {
       const limit = parseInt(limitValue, 10);
       if (limitType === 'characters') {
         formattedText = formattedText.slice(0, limit);
@@ -103,61 +83,61 @@ const TextFormatter = () => {
           <div className="flex items-center space-x-2">
             <Checkbox
               id="smartRemoveNewlines"
-              checked={options.smartRemoveNewlines}
-              onCheckedChange={() => handleOptionChange('smartRemoveNewlines')}
+              checked={options[option.SmartRemoveNewlines]}
+              onCheckedChange={() => handleOptionChange(option.SmartRemoveNewlines)}
             />
             <label htmlFor="smartRemoveNewlines">Smart Remove Newlines</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="trimWhitespace"
-              checked={options.trimWhitespace}
-              onCheckedChange={() => handleOptionChange('trimWhitespace')}
+              checked={options[option.TrimWhitespace]}
+              onCheckedChange={() => handleOptionChange(option.TrimWhitespace)}
             />
             <label htmlFor="trimWhitespace">Trim Whitespace</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="capitalizeFirstLetter"
-              checked={options.capitalizeFirstLetter}
-              onCheckedChange={() => handleOptionChange('capitalizeFirstLetter')}
+              checked={options[option.CapitalizeFirstLetter]}
+              onCheckedChange={() => handleOptionChange(option.CapitalizeFirstLetter)}
             />
             <label htmlFor="capitalizeFirstLetter">Capitalize First Letter</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="removeExtraSpaces"
-              checked={options.removeExtraSpaces}
-              onCheckedChange={() => handleOptionChange('removeExtraSpaces')}
+              checked={options[option.RemoveExtraSpaces]}
+              onCheckedChange={() => handleOptionChange(option.RemoveExtraSpaces)}
             />
             <label htmlFor="removeExtraSpaces">Remove Extra Spaces</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="fixIndentation"
-              checked={options.fixIndentation}
-              onCheckedChange={() => handleOptionChange('fixIndentation')}
+              checked={options[option.FixIndentation]}
+              onCheckedChange={() => handleOptionChange(option.FixIndentation)}
             />
             <label htmlFor="fixIndentation">Fix Indentation</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="removeNonEnglish"
-              checked={options.removeNonEnglish}
-              onCheckedChange={() => handleOptionChange('removeNonEnglish')}
+              checked={options[option.RemoveNonEnglish]}
+              onCheckedChange={() => handleOptionChange(option.RemoveNonEnglish)}
             />
             <label htmlFor="removeNonEnglish">Remove Non-English Characters</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="limitText"
-              checked={options.limitText}
-              onCheckedChange={() => handleOptionChange('limitText')}
+              checked={limitText}
+              onCheckedChange={(checked) => setLimitText(checked)}
             />
             <label htmlFor="limitText">Limit Text</label>
           </div>
         </div>
-        {options.limitText && (
+        {limitText && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
