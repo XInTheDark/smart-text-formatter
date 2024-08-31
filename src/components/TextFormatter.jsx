@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CopyIcon } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const TextFormatter = () => {
   const [inputText, setInputText] = useState('');
@@ -19,6 +21,21 @@ const TextFormatter = () => {
   });
   const [limitType, setLimitType] = useState('characters');
   const [limitValue, setLimitValue] = useState('');
+  const { toast } = useToast();
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(outputText).then(() => {
+      toast({
+        description: "Text copied to clipboard!",
+      });
+    }).catch((err) => {
+      console.error('Failed to copy text: ', err);
+      toast({
+        variant: "destructive",
+        description: "Failed to copy text.",
+      });
+    });
+  };
 
   const handleInputChange = (e) => {
     setInputText(e.target.value);
@@ -162,12 +179,22 @@ const TextFormatter = () => {
           </div>
         )}
         <Button onClick={formatText}>Format Text</Button>
-        <Textarea
-          value={outputText}
-          readOnly
-          placeholder="Formatted text will appear here..."
-          className="min-h-[200px]"
-        />
+        <div className="relative">
+          <Textarea
+            value={outputText}
+            readOnly
+            placeholder="Formatted text will appear here..."
+            className="min-h-[200px] pr-10"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={copyToClipboard}
+          >
+            <CopyIcon className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
