@@ -15,6 +15,7 @@ const TextFormatter = () => {
     removeExtraSpaces: false,
     fixIndentation: false,
     removeNonEnglish: false,
+    limitText: false,
   });
   const [limitType, setLimitType] = useState('characters');
   const [limitValue, setLimitValue] = useState('');
@@ -47,14 +48,17 @@ const TextFormatter = () => {
     }
 
     if (options.fixIndentation) {
-      formattedText = formattedText.split('\n').map(line => line.trim()).join('\n');
+      formattedText = formattedText.split('\n').map(line => {
+        const indentLevel = line.search(/\S/);
+        return ' '.repeat(indentLevel) + line.trim();
+      }).join('\n');
     }
 
     if (options.removeNonEnglish) {
       formattedText = formattedText.replace(/[^\x00-\x7F]/g, "");
     }
 
-    if (limitValue) {
+    if (options.limitText && limitValue) {
       const limit = parseInt(limitValue, 10);
       if (limitType === 'characters') {
         formattedText = formattedText.slice(0, limit);
@@ -127,26 +131,36 @@ const TextFormatter = () => {
             />
             <label htmlFor="removeNonEnglish">Remove Non-English Characters</label>
           </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="limitText"
+              checked={options.limitText}
+              onCheckedChange={() => handleOptionChange('limitText')}
+            />
+            <label htmlFor="limitText">Limit Text</label>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="number"
-            placeholder="Limit"
-            value={limitValue}
-            onChange={(e) => setLimitValue(e.target.value)}
-            className="w-24"
-          />
-          <Select value={limitType} onValueChange={setLimitType}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select limit type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="characters">Characters</SelectItem>
-              <SelectItem value="words">Words</SelectItem>
-              <SelectItem value="sentences">Sentences</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {options.limitText && (
+          <div className="flex items-center space-x-2">
+            <Input
+              type="number"
+              placeholder="Limit"
+              value={limitValue}
+              onChange={(e) => setLimitValue(e.target.value)}
+              className="w-24"
+            />
+            <Select value={limitType} onValueChange={setLimitType}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select limit type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="characters">Characters</SelectItem>
+                <SelectItem value="words">Words</SelectItem>
+                <SelectItem value="sentences">Sentences</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <Button onClick={formatText}>Format Text</Button>
         <Textarea
           value={outputText}
