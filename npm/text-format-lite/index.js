@@ -20,25 +20,22 @@ export const option = {
 
 export class Formatter {
   constructor() {
-    this.formatters = [
-      { option: option.SmartRemoveNewlines, func: smartRemoveNewlines },
-      { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
-      { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
-      { option: option.FixIndentation, func: fixIndentation },
-      { option: option.RemoveNonEnglish, func: removeNonEnglish },
-      { option: option.WrapLines, func: wrapLines },
-      { option: option.LimitText, func: limitText }
-    ];
+    this.formatters = {
+      [option.SmartRemoveNewlines.name]: smartRemoveNewlines,
+      [option.CapitalizeFirstLetter.name]: capitalizeFirstLetter,
+      [option.RemoveExtraSpaces.name]: removeExtraSpaces,
+      [option.FixIndentation.name]: fixIndentation,
+      [option.RemoveNonEnglish.name]: removeNonEnglish,
+      [option.WrapLines.name]: wrapLines,
+      [option.LimitText.name]: limitText
+    };
   }
 
   format(text, options) {
-    const applyAll = options.some(opt => opt.name === option.ALL.name);
-
-    return this.formatters.reduce((formattedText, formatter) => {
-      const matchingOption = options.find(opt => opt.name === formatter.option.name);
-      if (applyAll || matchingOption) {
-        const params = matchingOption?.params || {};
-        return formatter.func(formattedText, params);
+    return options.reduce((formattedText, opt) => {
+      const formatter = this.formatters[opt.name];
+      if (formatter) {
+        return formatter(formattedText, opt.params || {});
       }
       return formattedText;
     }, text);
