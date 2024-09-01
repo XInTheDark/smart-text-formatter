@@ -9,6 +9,7 @@ export default defineConfig({
     host: "::",
     port: "8080",
   },
+  base: "/smart-text-formatter/", // for GitHub Pages, repo name
   plugins: [react()],
   resolve: {
     alias: [
