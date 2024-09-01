@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CopyIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Formatter, option } from 'text-format-lite';
-import { wrapLines } from '../utils/textUtils';
 
 const formatter = new Formatter();
 
@@ -24,8 +23,10 @@ const TextFormatter = () => {
   });
   const [limitText, setLimitText] = useState(false);
   const [wrapLines, setWrapLines] = useState(false);
-  const [limitType, setLimitType] = useState('characters');
-  const [limitValue, setLimitValue] = useState('');
+  const [limitTextType, setLimitTextType] = useState('characters');
+  const [wrapLinesType, setWrapLinesType] = useState('characters');
+  const [limitTextValue, setLimitTextValue] = useState('');
+  const [wrapLinesValue, setWrapLinesValue] = useState('');
   const { toast } = useToast();
 
   const copyToClipboard = () => {
@@ -57,19 +58,12 @@ const TextFormatter = () => {
 
     let formattedText = formatter.format(inputText, selectedOptions);
 
-    if (limitText && limitValue) {
-      const limit = parseInt(limitValue, 10);
-      if (limitType === 'characters') {
-        formattedText = formattedText.slice(0, limit);
-      } else if (limitType === 'words') {
-        formattedText = formattedText.split(/\s+/).slice(0, limit).join(' ');
-      } else if (limitType === 'sentences') {
-        formattedText = formattedText.match(/[^\.!\?]+[\.!\?]+/g)?.slice(0, limit).join(' ') || '';
-      }
+    if (limitText && limitTextValue) {
+      formattedText = formatter.limitText(formattedText, parseInt(limitTextValue, 10), limitTextType);
     }
 
-    if (wrapLines && limitValue) {
-      formattedText = wrapLines(formattedText, parseInt(limitValue, 10), limitType);
+    if (wrapLines && wrapLinesValue) {
+      formattedText = formatter.wrapLines(formattedText, parseInt(wrapLinesValue, 10), wrapLinesType);
     }
 
     setOutputText(formattedText);
@@ -151,23 +145,43 @@ const TextFormatter = () => {
             <label htmlFor="wrapLines">Wrap Lines</label>
           </div>
         </div>
-        {(limitText || wrapLines) && (
+        {limitText && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
               placeholder="Limit"
-              value={limitValue}
-              onChange={(e) => setLimitValue(e.target.value)}
+              value={limitTextValue}
+              onChange={(e) => setLimitTextValue(e.target.value)}
               className="w-24"
             />
-            <Select value={limitType} onValueChange={setLimitType}>
+            <Select value={limitTextType} onValueChange={setLimitTextType}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select limit type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="characters">Characters</SelectItem>
                 <SelectItem value="words">Words</SelectItem>
-                {limitText && <SelectItem value="sentences">Sentences</SelectItem>}
+                <SelectItem value="sentences">Sentences</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {wrapLines && (
+          <div className="flex items-center space-x-2">
+            <Input
+              type="number"
+              placeholder="Wrap at"
+              value={wrapLinesValue}
+              onChange={(e) => setWrapLinesValue(e.target.value)}
+              className="w-24"
+            />
+            <Select value={wrapLinesType} onValueChange={setWrapLinesType}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select wrap type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="characters">Characters</SelectItem>
+                <SelectItem value="words">Words</SelectItem>
               </SelectContent>
             </Select>
           </div>

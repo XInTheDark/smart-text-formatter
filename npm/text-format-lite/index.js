@@ -4,6 +4,8 @@ import { capitalizeFirstLetter } from './formatter/capitalizeFirstLetter.js';
 import { removeExtraSpaces } from './formatter/removeExtraSpaces.js';
 import { fixIndentation } from './formatter/fixIndentation.js';
 import { removeNonEnglish } from './formatter/removeNonEnglish.js';
+import { wrapLines } from './formatter/wrapLines.js';
+import { limitText } from './formatter/limitText.js';
 
 // Text formatting options
 export const option = {
@@ -38,4 +40,14 @@ export class Formatter {
       return formattedText;
     }, text);
   }
+
+  wrapLines(text, limit, mode) {
+    return wrapLines(text, limit, mode);
+  }
+
+  limitText(text, limit, mode) {
+    return limitText(text, limit, mode);
+  }
 }
+
+export { wrapLines, limitText };
