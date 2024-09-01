@@ -93,69 +93,61 @@ const TextFormatter = () => {
           <div className="flex items-center space-x-2">
             <Checkbox
               id="smartRemoveNewlines"
-              checked={options[option.SmartRemoveNewlines]}
-              onCheckedChange={() => handleOptionChange(option.SmartRemoveNewlines)}
+              checked={options[option.SmartRemoveNewlines.name]}
+              onCheckedChange={() => handleOptionChange(option.SmartRemoveNewlines.name)}
             />
             <label htmlFor="smartRemoveNewlines">Smart Remove Newlines</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
-              id="trimWhitespace"
-              checked={options[option.TrimWhitespace]}
-              onCheckedChange={() => handleOptionChange(option.TrimWhitespace)}
-            />
-            <label htmlFor="trimWhitespace">Trim Whitespace</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
               id="capitalizeFirstLetter"
-              checked={options[option.CapitalizeFirstLetter]}
-              onCheckedChange={() => handleOptionChange(option.CapitalizeFirstLetter)}
+              checked={options[option.CapitalizeFirstLetter.name]}
+              onCheckedChange={() => handleOptionChange(option.CapitalizeFirstLetter.name)}
             />
             <label htmlFor="capitalizeFirstLetter">Capitalize First Letter</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="removeExtraSpaces"
-              checked={options[option.RemoveExtraSpaces]}
-              onCheckedChange={() => handleOptionChange(option.RemoveExtraSpaces)}
+              checked={options[option.RemoveExtraSpaces.name]}
+              onCheckedChange={() => handleOptionChange(option.RemoveExtraSpaces.name)}
             />
             <label htmlFor="removeExtraSpaces">Remove Extra Spaces</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="fixIndentation"
-              checked={options[option.FixIndentation]}
-              onCheckedChange={() => handleOptionChange(option.FixIndentation)}
+              checked={options[option.FixIndentation.name]}
+              onCheckedChange={() => handleOptionChange(option.FixIndentation.name)}
             />
             <label htmlFor="fixIndentation">Fix Indentation</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="removeNonEnglish"
-              checked={options[option.RemoveNonEnglish]}
-              onCheckedChange={() => handleOptionChange(option.RemoveNonEnglish)}
+              checked={options[option.RemoveNonEnglish.name]}
+              onCheckedChange={() => handleOptionChange(option.RemoveNonEnglish.name)}
             />
             <label htmlFor="removeNonEnglish">Remove Non-English Characters</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="limitText"
-              checked={limitText}
-              onCheckedChange={(checked) => setLimitText(checked)}
+              checked={options[option.LimitText.name]}
+              onCheckedChange={() => handleOptionChange(option.LimitText.name)}
             />
             <label htmlFor="limitText">Limit Text</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="wrapLines"
-              checked={wrapLines}
-              onCheckedChange={(checked) => setWrapLines(checked)}
+              checked={options[option.WrapLines.name]}
+              onCheckedChange={() => handleOptionChange(option.WrapLines.name)}
             />
             <label htmlFor="wrapLines">Wrap Lines</label>
           </div>
         </div>
-        {limitText && (
+        {options[option.LimitText.name] && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
@@ -176,7 +168,7 @@ const TextFormatter = () => {
             </Select>
           </div>
         )}
-        {wrapLines && (
+        {options[option.WrapLines.name] && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
