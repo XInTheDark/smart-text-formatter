@@ -7,7 +7,7 @@ import Index from "./pages/Index.jsx";
 export const navItems = [
     {
         title: "Home",
-        to: "/",
+        to: "/smart-text-formatter/",
         icon: <HomeIcon className="h-4 w-4"/>,
         page: <Index/>,
     },
