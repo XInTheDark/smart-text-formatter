@@ -32,15 +32,18 @@ export class Formatter {
   }
 
   format(text, options) {
-    const applyAll = options.some(opt => opt.name === option.ALL.name);
+    let formattedText = text;
 
-    return this.formatters.reduce((formattedText, formatter) => {
-      const matchingOption = options.find(opt => opt.name === formatter.option.name);
-      if (applyAll || matchingOption) {
-        const params = matchingOption?.params || {};
-        return formatter.func(formattedText, params);
+    for (const option of options) {
+      const formatter = this.formatters.find((f) => f.option === option);
+      if (formatter) {
+        formattedText = formatter.func(formattedText, option.params);
       }
-      return formattedText;
-    }, text);
+      else {
+        console.error(`Unknown option: ${option}`);
+      }
+    }
+
+    return formattedText;
   }
 }
