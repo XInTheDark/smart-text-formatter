@@ -11,7 +11,7 @@ export const option = {
   SmartRemoveNewlines: { name: 'SmartRemoveNewlines' },
   CapitalizeFirstLetter: { name: 'CapitalizeFirstLetter' },
   RemoveExtraSpaces: { name: 'RemoveExtraSpaces' },
-  FixIndentation: { name: 'FixIndentation' },
+  FixIndentation: { name: 'FixIndentation', params: { maxIndent: 16, multipleOf: 4 } },
   RemoveNonEnglish: { name: 'RemoveNonEnglish' },
   WrapLines: { name: 'WrapLines', params: { limit: 0, mode: 'characters' } },
   LimitText: { name: 'LimitText', params: { limit: 0, mode: 'characters' } },
@@ -34,10 +34,10 @@ export class Formatter {
   format(text, options) {
     let formattedText = text;
 
-    for (const option of options) {
-      const formatter = this.formatters.find((f) => f.option === option);
+    for (const opt of options) {
+      const formatter = this.formatters.find((f) => f.option.name === opt.name);
       if (formatter) {
-        formattedText = formatter.func(formattedText, option.params);
+        formattedText = formatter.func(formattedText, opt.params);
       }
       else {
         console.error(`Unknown option: ${option}`);

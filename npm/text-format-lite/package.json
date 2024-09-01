@@ -1,6 +1,6 @@
 {
   "name": "text-format-lite",
-  "version": "1.0.4-beta.2",
+  "version": "1.0.6",
   "description": "A lightweight text formatting library",
   "main": "index.js",
   "scripts": {
