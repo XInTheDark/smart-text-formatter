@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CopyIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { format, option } from 'text-format-lite';
+import { Formatter, option } from 'text-format-lite';
+
+const formatter = new Formatter();
 
 const TextFormatter = () => {
   const [inputText, setInputText] = useState('');
@@ -73,7 +75,7 @@ const TextFormatter = () => {
         return { name: key };
       });
 
-    const formattedText = format(inputText, selectedOptions);
+    const formattedText = formatter.format(inputText, selectedOptions);
     setOutputText(formattedText);
   };
 

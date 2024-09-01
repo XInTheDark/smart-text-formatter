@@ -18,23 +18,29 @@ export const option = {
   ALL: { name: 'ALL' }
 };
 
-export function format(text, options) {
-  const formatters = {
-    [option.SmartRemoveNewlines.name]: smartRemoveNewlines,
-    [option.CapitalizeFirstLetter.name]: capitalizeFirstLetter,
-    [option.RemoveExtraSpaces.name]: removeExtraSpaces,
-    [option.FixIndentation.name]: fixIndentation,
-    [option.RemoveNonEnglish.name]: removeNonEnglish,
-    [option.WrapLines.name]: wrapLines,
-    [option.LimitText.name]: limitText
-  };
+export class Formatter {
+  constructor() {
+    this.formatters = [
+      { option: option.SmartRemoveNewlines, func: smartRemoveNewlines },
+      { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
+      { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
+      { option: option.FixIndentation, func: fixIndentation },
+      { option: option.RemoveNonEnglish, func: removeNonEnglish },
+      { option: option.WrapLines, func: wrapLines },
+      { option: option.LimitText, func: limitText }
+    ];
+  }
 
-  const applyAll = options.some(opt => opt.name === option.ALL.name);
+  format(text, options) {
+    const applyAll = options.some(opt => opt.name === option.ALL.name);
 
-  return options.reduce((formattedText, opt) => {
-    if (applyAll || formatters[opt.name]) {
-      return formatters[opt.name](formattedText, opt.params);
-    }
-    return formattedText;
-  }, text);
+    return this.formatters.reduce((formattedText, formatter) => {
+      const matchingOption = options.find(opt => opt.name === formatter.option.name);
+      if (applyAll || matchingOption) {
+        const params = matchingOption?.params || {};
+        return formatter.func(formattedText, params);
+      }
+      return formattedText;
+    }, text);
+  }
 }
