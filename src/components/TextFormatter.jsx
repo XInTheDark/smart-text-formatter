@@ -56,6 +56,10 @@ const TextFormatter = () => {
         setOptions((prev) => ({ ...prev, [opt]: !prev[opt] }));
     };
 
+    const getOption = (name) => {
+        return option[name];
+    }
+
     const optionComponent = (opt, userFriendlyName) => {
         return (
             <div className="flex items-center space-x-2">
@@ -73,25 +77,26 @@ const TextFormatter = () => {
         const selectedOptions = Object.entries(options)
             .filter(([_, value]) => value)
             .map(([key, _]) => {
+                let opt = getOption(key);
+                let params = {};
+
                 if (key === option.WrapLines.name) {
-                    return {
-                        name: key,
-                        params: {
-                            limit: parseInt(wrapLinesValue, 10) || 0,
-                            mode: wrapLinesType
-                        }
+                    params = {
+                        limit: parseInt(wrapLinesValue, 10) || 0,
+                        mode: wrapLinesType
                     };
                 }
                 if (key === option.LimitText.name) {
-                    return {
-                        name: key,
-                        params: {
-                            limit: parseInt(limitTextValue, 10) || 0,
-                            mode: limitTextType
-                        }
+                    params = {
+                        limit: parseInt(limitTextValue, 10) || 0,
+                        mode: limitTextType
                     };
                 }
-                return { name: key };
+
+                return {
+                    ...opt,
+                    params: params
+                };
             });
 
         const formattedText = formatter.format(inputText, selectedOptions);
@@ -126,7 +131,7 @@ const TextFormatter = () => {
                         />
                         <Select value={limitTextType} onValueChange={setLimitTextType}>
                             <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select limit type" />
+                                <SelectValue placeholder="Select limit type"/>
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="characters">Characters</SelectItem>
@@ -147,7 +152,7 @@ const TextFormatter = () => {
                         />
                         <Select value={wrapLinesType} onValueChange={setWrapLinesType}>
                             <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select wrap type" />
+                                <SelectValue placeholder="Select wrap type"/>
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="characters">Characters</SelectItem>
@@ -170,7 +175,7 @@ const TextFormatter = () => {
                         className="absolute top-2 right-2"
                         onClick={copyToClipboard}
                     >
-                        <CopyIcon className="h-4 w-4" />
+                        <CopyIcon className="h-4 w-4"/>
                     </Button>
                 </div>
             </div>
