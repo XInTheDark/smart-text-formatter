@@ -1,4 +1,5 @@
-export function wrapLines(text, limit, mode = 'characters') {
+export function wrapLines(text, params = { limit: 0, mode: 'characters' }) {
+  const { limit, mode } = params;
   if (!limit || limit <= 0) return text;
 
   const words = text.split(/\s+/);

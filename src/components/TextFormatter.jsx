@@ -14,15 +14,14 @@ const TextFormatter = () => {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [options, setOptions] = useState({
-    [option.SmartRemoveNewlines]: false,
-    [option.TrimWhitespace]: false,
-    [option.CapitalizeFirstLetter]: false,
-    [option.RemoveExtraSpaces]: false,
-    [option.FixIndentation]: false,
-    [option.RemoveNonEnglish]: false,
+    [option.SmartRemoveNewlines.name]: false,
+    [option.CapitalizeFirstLetter.name]: false,
+    [option.RemoveExtraSpaces.name]: false,
+    [option.FixIndentation.name]: false,
+    [option.RemoveNonEnglish.name]: false,
+    [option.WrapLines.name]: false,
+    [option.LimitText.name]: false,
   });
-  const [limitText, setLimitText] = useState(false);
-  const [wrapLines, setWrapLines] = useState(false);
   const [limitTextType, setLimitTextType] = useState('characters');
   const [wrapLinesType, setWrapLinesType] = useState('characters');
   const [limitTextValue, setLimitTextValue] = useState('');
@@ -54,18 +53,29 @@ const TextFormatter = () => {
   const formatText = () => {
     const selectedOptions = Object.entries(options)
       .filter(([_, value]) => value)
-      .map(([key, _]) => key);
+      .map(([key, _]) => {
+        if (key === option.WrapLines.name) {
+          return { 
+            name: key, 
+            params: { 
+              limit: parseInt(wrapLinesValue, 10) || 0, 
+              mode: wrapLinesType 
+            } 
+          };
+        }
+        if (key === option.LimitText.name) {
+          return { 
+            name: key, 
+            params: { 
+              limit: parseInt(limitTextValue, 10) || 0, 
+              mode: limitTextType 
+            } 
+          };
+        }
+        return { name: key };
+      });
 
-    let formattedText = formatter.format(inputText, selectedOptions);
-
-    if (limitText && limitTextValue) {
-      formattedText = formatter.limitText(formattedText, parseInt(limitTextValue, 10), limitTextType);
-    }
-
-    if (wrapLines && wrapLinesValue) {
-      formattedText = formatter.wrapLines(formattedText, parseInt(wrapLinesValue, 10), wrapLinesType);
-    }
-
+    const formattedText = formatter.format(inputText, selectedOptions);
     setOutputText(formattedText);
   };
 

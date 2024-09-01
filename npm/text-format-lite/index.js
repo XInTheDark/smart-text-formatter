@@ -8,12 +8,14 @@ import { limitText } from './formatter/limitText.js';
 
 // Text formatting options
 export const option = {
-  SmartRemoveNewlines: 'SmartRemoveNewlines',
-  CapitalizeFirstLetter: 'CapitalizeFirstLetter',
-  RemoveExtraSpaces: 'RemoveExtraSpaces',
-  FixIndentation: 'FixIndentation',
-  RemoveNonEnglish: 'RemoveNonEnglish',
-  ALL: 'ALL'
+  SmartRemoveNewlines: { name: 'SmartRemoveNewlines' },
+  CapitalizeFirstLetter: { name: 'CapitalizeFirstLetter' },
+  RemoveExtraSpaces: { name: 'RemoveExtraSpaces' },
+  FixIndentation: { name: 'FixIndentation' },
+  RemoveNonEnglish: { name: 'RemoveNonEnglish' },
+  WrapLines: { name: 'WrapLines', params: { limit: 0, mode: 'characters' } },
+  LimitText: { name: 'LimitText', params: { limit: 0, mode: 'characters' } },
+  ALL: { name: 'ALL' }
 };
 
 export class Formatter {
@@ -23,28 +25,22 @@ export class Formatter {
       { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
       { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
       { option: option.FixIndentation, func: fixIndentation },
-      { option: option.RemoveNonEnglish, func: removeNonEnglish }
+      { option: option.RemoveNonEnglish, func: removeNonEnglish },
+      { option: option.WrapLines, func: wrapLines },
+      { option: option.LimitText, func: limitText }
     ];
   }
 
   format(text, options) {
-    const applyAll = options.includes(option.ALL);
+    const applyAll = options.some(opt => opt.name === option.ALL.name);
 
     return this.formatters.reduce((formattedText, formatter) => {
-      if (applyAll || options.includes(formatter.option)) {
-        return formatter.func(formattedText);
+      const matchingOption = options.find(opt => opt.name === formatter.option.name);
+      if (applyAll || matchingOption) {
+        const params = matchingOption?.params || {};
+        return formatter.func(formattedText, params);
       }
       return formattedText;
     }, text);
   }
-
-  wrapLines(text, limit, mode) {
-    return wrapLines(text, limit, mode);
-  }
-
-  limitText(text, limit, mode) {
-    return limitText(text, limit, mode);
-  }
 }
-
-export { wrapLines, limitText };

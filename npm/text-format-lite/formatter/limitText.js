@@ -1,4 +1,5 @@
-export function limitText(text, limit, mode = 'characters') {
+export function limitText(text, params = { limit: 0, mode: 'characters' }) {
+  const { limit, mode } = params;
   if (!limit || limit <= 0) return text;
 
   switch (mode) {
