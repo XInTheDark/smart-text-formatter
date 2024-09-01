@@ -20,10 +20,10 @@ const TextFormatter = () => {
     [option.RemoveExtraSpaces]: false,
     [option.FixIndentation]: false,
     [option.RemoveNonEnglish]: false,
-    [option.WrapLines]: false,
   });
-  const [limitType, setLimitType] = useState('characters');
-  const [limitValue, setLimitValue] = useState('');
+  const [wrapLines, setWrapLines] = useState(false);
+  const [wrapType, setWrapType] = useState('characters');
+  const [wrapLimit, setWrapLimit] = useState('');
   const { toast } = useToast();
 
   const copyToClipboard = () => {
@@ -52,10 +52,13 @@ const TextFormatter = () => {
     const selectedOptions = Object.entries(options)
       .filter(([_, value]) => value)
       .map(([key, _]) => key);
-
-    const wrapOptions = options[option.WrapLines] ? { limit: parseInt(limitValue, 10), type: limitType } : {};
     
-    const formattedText = formatter.format(inputText, selectedOptions, wrapOptions);
+    let formattedText = formatter.format(inputText, selectedOptions);
+    
+    if (wrapLines && wrapLimit) {
+      formattedText = formatter.wrapLines(formattedText, parseInt(wrapLimit, 10), wrapType);
+    }
+    
     setOutputText(formattedText);
   };
 
@@ -81,18 +84,26 @@ const TextFormatter = () => {
             </div>
           ))}
         </div>
-        {options[option.WrapLines] && (
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="wrapLines"
+            checked={wrapLines}
+            onCheckedChange={setWrapLines}
+          />
+          <label htmlFor="wrapLines">Wrap Lines</label>
+        </div>
+        {wrapLines && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
               placeholder="Limit"
-              value={limitValue}
-              onChange={(e) => setLimitValue(e.target.value)}
+              value={wrapLimit}
+              onChange={(e) => setWrapLimit(e.target.value)}
               className="w-24"
             />
-            <Select value={limitType} onValueChange={setLimitType}>
+            <Select value={wrapType} onValueChange={setWrapType}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select limit type" />
+                <SelectValue placeholder="Select wrap type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="characters">Characters</SelectItem>

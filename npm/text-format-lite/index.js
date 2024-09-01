@@ -31,17 +31,18 @@ export class Formatter {
     ];
   }
 
-  format(text, options, wrapOptions = {}) {
+  format(text, options) {
     const applyAll = options.includes(option.ALL);
 
     return this.formatters.reduce((formattedText, formatter) => {
       if (applyAll || options.includes(formatter.option)) {
-        if (formatter.option === option.WrapLines) {
-          return formatter.func(formattedText, wrapOptions.limit, wrapOptions.type);
-        }
         return formatter.func(formattedText);
       }
       return formattedText;
     }, text);
+  }
+
+  wrapLines(text, limit, type) {
+    return wrapLines(text, limit, type);
   }
 }
