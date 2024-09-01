@@ -13,8 +13,6 @@ export const option = {
   RemoveExtraSpaces: 'RemoveExtraSpaces',
   FixIndentation: 'FixIndentation',
   RemoveNonEnglish: 'RemoveNonEnglish',
-  WrapLines: 'WrapLines',
-  LimitText: 'LimitText',
   ALL: 'ALL'
 };
 
@@ -25,21 +23,28 @@ export class Formatter {
       { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
       { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
       { option: option.FixIndentation, func: fixIndentation },
-      { option: option.RemoveNonEnglish, func: removeNonEnglish },
-      { option: option.WrapLines, func: wrapLines },
-      { option: option.LimitText, func: limitText }
+      { option: option.RemoveNonEnglish, func: removeNonEnglish }
     ];
   }
 
   format(text, options) {
-    const applyAll = options.some(opt => opt.option === option.ALL);
+    const applyAll = options.includes(option.ALL);
 
     return this.formatters.reduce((formattedText, formatter) => {
-      const optionConfig = options.find(opt => opt.option === formatter.option) || {};
-      if (applyAll || optionConfig.option) {
-        return formatter.func(formattedText, optionConfig.params);
+      if (applyAll || options.includes(formatter.option)) {
+        return formatter.func(formattedText);
       }
       return formattedText;
     }, text);
   }
+
+  wrapLines(text, limit, mode) {
+    return wrapLines(text, limit, mode);
+  }
+
+  limitText(text, limit, mode) {
+    return limitText(text, limit, mode);
+  }
 }
+
+export { wrapLines, limitText };

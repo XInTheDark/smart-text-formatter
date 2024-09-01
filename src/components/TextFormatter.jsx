@@ -15,13 +15,14 @@ const TextFormatter = () => {
   const [outputText, setOutputText] = useState('');
   const [options, setOptions] = useState({
     [option.SmartRemoveNewlines]: false,
+    [option.TrimWhitespace]: false,
     [option.CapitalizeFirstLetter]: false,
     [option.RemoveExtraSpaces]: false,
     [option.FixIndentation]: false,
     [option.RemoveNonEnglish]: false,
-    [option.WrapLines]: false,
-    [option.LimitText]: false,
   });
+  const [limitText, setLimitText] = useState(false);
+  const [wrapLines, setWrapLines] = useState(false);
   const [limitTextType, setLimitTextType] = useState('characters');
   const [wrapLinesType, setWrapLinesType] = useState('characters');
   const [limitTextValue, setLimitTextValue] = useState('');
@@ -53,16 +54,18 @@ const TextFormatter = () => {
   const formatText = () => {
     const selectedOptions = Object.entries(options)
       .filter(([_, value]) => value)
-      .map(([key, _]) => ({
-        option: key,
-        params: key === option.WrapLines
-          ? { limit: parseInt(wrapLinesValue, 10), mode: wrapLinesType }
-          : key === option.LimitText
-          ? { limit: parseInt(limitTextValue, 10), mode: limitTextType }
-          : undefined
-      }));
+      .map(([key, _]) => key);
 
-    const formattedText = formatter.format(inputText, selectedOptions);
+    let formattedText = formatter.format(inputText, selectedOptions);
+
+    if (limitText && limitTextValue) {
+      formattedText = formatter.limitText(formattedText, parseInt(limitTextValue, 10), limitTextType);
+    }
+
+    if (wrapLines && wrapLinesValue) {
+      formattedText = formatter.wrapLines(formattedText, parseInt(wrapLinesValue, 10), wrapLinesType);
+    }
+
     setOutputText(formattedText);
   };
 
@@ -84,6 +87,14 @@ const TextFormatter = () => {
               onCheckedChange={() => handleOptionChange(option.SmartRemoveNewlines)}
             />
             <label htmlFor="smartRemoveNewlines">Smart Remove Newlines</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="trimWhitespace"
+              checked={options[option.TrimWhitespace]}
+              onCheckedChange={() => handleOptionChange(option.TrimWhitespace)}
+            />
+            <label htmlFor="trimWhitespace">Trim Whitespace</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -120,21 +131,21 @@ const TextFormatter = () => {
           <div className="flex items-center space-x-2">
             <Checkbox
               id="limitText"
-              checked={options[option.LimitText]}
-              onCheckedChange={() => handleOptionChange(option.LimitText)}
+              checked={limitText}
+              onCheckedChange={(checked) => setLimitText(checked)}
             />
             <label htmlFor="limitText">Limit Text</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="wrapLines"
-              checked={options[option.WrapLines]}
-              onCheckedChange={() => handleOptionChange(option.WrapLines)}
+              checked={wrapLines}
+              onCheckedChange={(checked) => setWrapLines(checked)}
             />
             <label htmlFor="wrapLines">Wrap Lines</label>
           </div>
         </div>
-        {options[option.LimitText] && (
+        {limitText && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
@@ -155,7 +166,7 @@ const TextFormatter = () => {
             </Select>
           </div>
         )}
-        {options[option.WrapLines] && (
+        {wrapLines && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
