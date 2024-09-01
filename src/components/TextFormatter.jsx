@@ -110,7 +110,7 @@ const TextFormatter = () => {
               checked={options[option.RemoveExtraSpaces]}
               onCheckedChange={() => handleOptionChange(option.RemoveExtraSpaces)}
             />
-            <label htmlFor="removeExtraSpaces">Remove Extra Spaces</label>
+            <label htmlFor="removeExtraSpaces">Remove Extra Spaces and Trim</label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
