@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CopyIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Formatter, option } from 'text-format-lite';
+import { wrapLines } from '../utils/textUtils';
 
 const formatter = new Formatter();
 
@@ -21,9 +22,10 @@ const TextFormatter = () => {
     [option.FixIndentation]: false,
     [option.RemoveNonEnglish]: false,
   });
+  const [limitText, setLimitText] = useState(false);
   const [wrapLines, setWrapLines] = useState(false);
-  const [wrapType, setWrapType] = useState('characters');
-  const [wrapLimit, setWrapLimit] = useState('');
+  const [limitType, setLimitType] = useState('characters');
+  const [limitValue, setLimitValue] = useState('');
   const { toast } = useToast();
 
   const copyToClipboard = () => {
@@ -52,13 +54,24 @@ const TextFormatter = () => {
     const selectedOptions = Object.entries(options)
       .filter(([_, value]) => value)
       .map(([key, _]) => key);
-    
+
     let formattedText = formatter.format(inputText, selectedOptions);
-    
-    if (wrapLines && wrapLimit) {
-      formattedText = formatter.wrapLines(formattedText, parseInt(wrapLimit, 10), wrapType);
+
+    if (limitText && limitValue) {
+      const limit = parseInt(limitValue, 10);
+      if (limitType === 'characters') {
+        formattedText = formattedText.slice(0, limit);
+      } else if (limitType === 'words') {
+        formattedText = formattedText.split(/\s+/).slice(0, limit).join(' ');
+      } else if (limitType === 'sentences') {
+        formattedText = formattedText.match(/[^\.!\?]+[\.!\?]+/g)?.slice(0, limit).join(' ') || '';
+      }
     }
-    
+
+    if (wrapLines && limitValue) {
+      formattedText = wrapLines(formattedText, parseInt(limitValue, 10), limitType);
+    }
+
     setOutputText(formattedText);
   };
 
@@ -73,41 +86,88 @@ const TextFormatter = () => {
           className="min-h-[200px]"
         />
         <div className="flex flex-wrap gap-4">
-          {Object.entries(options).map(([key, value]) => (
-            <div key={key} className="flex items-center space-x-2">
-              <Checkbox
-                id={key}
-                checked={value}
-                onCheckedChange={() => handleOptionChange(key)}
-              />
-              <label htmlFor={key}>{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-            </div>
-          ))}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="smartRemoveNewlines"
+              checked={options[option.SmartRemoveNewlines]}
+              onCheckedChange={() => handleOptionChange(option.SmartRemoveNewlines)}
+            />
+            <label htmlFor="smartRemoveNewlines">Smart Remove Newlines</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="trimWhitespace"
+              checked={options[option.TrimWhitespace]}
+              onCheckedChange={() => handleOptionChange(option.TrimWhitespace)}
+            />
+            <label htmlFor="trimWhitespace">Trim Whitespace</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="capitalizeFirstLetter"
+              checked={options[option.CapitalizeFirstLetter]}
+              onCheckedChange={() => handleOptionChange(option.CapitalizeFirstLetter)}
+            />
+            <label htmlFor="capitalizeFirstLetter">Capitalize First Letter</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="removeExtraSpaces"
+              checked={options[option.RemoveExtraSpaces]}
+              onCheckedChange={() => handleOptionChange(option.RemoveExtraSpaces)}
+            />
+            <label htmlFor="removeExtraSpaces">Remove Extra Spaces</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="fixIndentation"
+              checked={options[option.FixIndentation]}
+              onCheckedChange={() => handleOptionChange(option.FixIndentation)}
+            />
+            <label htmlFor="fixIndentation">Fix Indentation</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="removeNonEnglish"
+              checked={options[option.RemoveNonEnglish]}
+              onCheckedChange={() => handleOptionChange(option.RemoveNonEnglish)}
+            />
+            <label htmlFor="removeNonEnglish">Remove Non-English Characters</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="limitText"
+              checked={limitText}
+              onCheckedChange={(checked) => setLimitText(checked)}
+            />
+            <label htmlFor="limitText">Limit Text</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="wrapLines"
+              checked={wrapLines}
+              onCheckedChange={(checked) => setWrapLines(checked)}
+            />
+            <label htmlFor="wrapLines">Wrap Lines</label>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="wrapLines"
-            checked={wrapLines}
-            onCheckedChange={setWrapLines}
-          />
-          <label htmlFor="wrapLines">Wrap Lines</label>
-        </div>
-        {wrapLines && (
+        {(limitText || wrapLines) && (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
               placeholder="Limit"
-              value={wrapLimit}
-              onChange={(e) => setWrapLimit(e.target.value)}
+              value={limitValue}
+              onChange={(e) => setLimitValue(e.target.value)}
               className="w-24"
             />
-            <Select value={wrapType} onValueChange={setWrapType}>
+            <Select value={limitType} onValueChange={setLimitType}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select wrap type" />
+                <SelectValue placeholder="Select limit type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="characters">Characters</SelectItem>
                 <SelectItem value="words">Words</SelectItem>
+                {limitText && <SelectItem value="sentences">Sentences</SelectItem>}
               </SelectContent>
             </Select>
           </div>

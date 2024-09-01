@@ -4,7 +4,6 @@ import { capitalizeFirstLetter } from './formatter/capitalizeFirstLetter.js';
 import { removeExtraSpaces } from './formatter/removeExtraSpaces.js';
 import { fixIndentation } from './formatter/fixIndentation.js';
 import { removeNonEnglish } from './formatter/removeNonEnglish.js';
-import { wrapLines } from './formatter/wrapLines.js';
 
 // Text formatting options
 export const option = {
@@ -14,7 +13,6 @@ export const option = {
   RemoveExtraSpaces: 'RemoveExtraSpaces',
   FixIndentation: 'FixIndentation',
   RemoveNonEnglish: 'RemoveNonEnglish',
-  WrapLines: 'WrapLines',
   ALL: 'ALL'
 };
 
@@ -26,8 +24,7 @@ export class Formatter {
       { option: option.CapitalizeFirstLetter, func: capitalizeFirstLetter },
       { option: option.RemoveExtraSpaces, func: removeExtraSpaces },
       { option: option.FixIndentation, func: fixIndentation },
-      { option: option.RemoveNonEnglish, func: removeNonEnglish },
-      { option: option.WrapLines, func: wrapLines }
+      { option: option.RemoveNonEnglish, func: removeNonEnglish }
     ];
   }
 
@@ -40,9 +37,5 @@ export class Formatter {
       }
       return formattedText;
     }, text);
-  }
-
-  wrapLines(text, limit, type) {
-    return wrapLines(text, limit, type);
   }
 }
